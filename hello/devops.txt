@@ -1,0 +1,553 @@
+------------gitops------------------
+taking the code we have write,that you commit to a git repository ,whether that be a github or bigbucket, and taking it all from the code to a deployment
+which is a production server.
+
+
+-------------------------Argo CD---------------------------
+
+What is Argo CD?
+-->Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes.
+
+Why Argo CD?
+Application definitions, configurations, and environments should be declarative
+and version controlled. Application deployment and lifecycle management should be 
+automated, auditable, and easy to understand.
+
+Quick Start?
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+-->kubectl get ns
+-->kubectl get all -n argocd
+-->kubectl edit svc service-name -n argocd		//change ClusterIp to NodePort
+-->kubectl get secret -n argocd
+-->kubectl edit secret service-name -n argocd
+-->echo password | base65 --decode
+-->kubectl create ns name
+
+--> cmd to delete namespace $kubectl delete ns argocd
+
+-->https://github.com/helm/examples.git
+-----------------------------------
+Deployment in Kubernetes
+deployment in kubernetes
+
+connect master and worker node as per the document shared by the tejaswini
+
+install maven and git in master
+
+clone git repositort -->git clone https://github.com/sai9062/saikrishna.git'
+
+-->ls
+	Dockerfile pom.xml src tarcget
+--> cd saikrishna
+-->cd src/main/resource
+-->vi application.properties
+	server.port=8888[any four digit port number]
+-->sudo docker build -t dockerhubusername/reponame:tag .
+				[donthusaikrishna/krishna:v2]
+-->sudo docker images
+-->sudo docker run -itd -p exposeport:serverport imagename
+-->sudo docker ps -a
+-->docker login
+	username:donthusaikrishna
+	password:XXXXXXX
+-->docker push dockerhubusername/reponame:v2
+-->now copy the ip address of master and combine with exposeport from docker file{ipaddress:exposeport}
+-->now write the yaml file
+ 	vi k8s.yaml
+apiVersion: apps/v1  
+
+kind: Deployment   #kubernetes resource kind is created here 
+
+metadata:  
+
+  name: hello-deployment 
+
+spec: 
+
+  replicas: 2   # no of replicas will be created for this deployment 
+
+  selector: 
+
+    matchLabels: 
+
+      app: hello 
+
+  template: 
+
+    metadata: 
+
+      labels: 
+
+        app: hello 
+
+    spec: 
+
+      containers: 
+
+        - name: hello 
+
+          image: pdileepkumar12133/dileep  #Image i.e used in cluster 
+
+          imagePullPolicy: Always 
+
+          ports: 
+
+            - containerPort: 8081 
+---
+apiVersion: v1 
+
+kind: Service 
+
+metadata: 
+
+  name: hello-service 
+
+spec: 
+
+  selector: 
+
+    app: hell 
+
+  ports: 
+
+    - protocol: "TCP" 
+
+      port: 8081 
+
+      targetPort: 8080 [provide the port number the deployment should be exposed to ]
+
+ 
+
+  type: LoadBalancer 
+
+:wq!
+
+-->kubectl apply -f yaml file name
+-->kubectls get deployments
+-->kubectls get svc
+-->~/.kube/config
+
+				---------------Docker-------------------------
+
+What is Docker?
+-->Docker is an open-source platform for building, shipping, and running applications in a portable, containerized format. Docker enables developers 
+to package an application and all its dependencies into a single container, which can be run on any machine with the Docker platform installed, 
+regardless of the underlying operating system or hardware.
+
+-->Overall, Docker simplifies the development and deployment of applications by providing a consistent and reliable environment across different 
+systems and environments.
+
+[first image was "build" and 'pulled" from the
+docker repositer and "run" the image to form a 
+container]
+
+what is dockerfile?
+Dockerfile is a simple text file with instructions to build a Docker image.  As shown below Dockerfile is a simple text file where we give some 
+instructions to build an image. And when we run docker build command a file image gets created.
+
+What is container?[container is a running instance of a image]
+A Docker container is a lightweight, standalone, executable package of software that includes everything needed to run an application, such as code, 
+runtime, system tools, libraries, and settings. It is built on top of Docker image, which is a read-only template that contains a set of instructions 
+to create a Docker container. Containers isolate applications from each other and from the underlying host system, providing a consistent runtime 
+environment across different platforms and deployment environments. Docker containers are portable, easy to distribute, and can be run on any system 
+that supports Docker. They have become a popular technology for application development, testing, and deployment in a variety of environments, including 
+cloud, on-premises, and hybrid environments.
+
+what is image?
+set of instruction that are required to run a application.z
+
+
+				-----Docker Installation---------------
+
+first update the instace-->"sudo yum update -y"
+
+-->sudo amazon-linux-extras install docker
+-->press y
+-->docker info// it shows cannot connect to the 
+docker deamon
+-->sudo service docker start
+-->docker info//permission denied
+-->sudo docker info
+
+				-------sample Docker file creation------------
+-->vi Dockerfile
+	FROM ubuntu:latest
+	RUN apt-get update
+	CMD ["echo","hello-world"]
+
+-->sudo docker build -t hello-world .[". is mention to it will be in same path(same directory ani ardam)",if it is in different path we have to give the path]
+-->sudo docker images
+-->sudo docker run --name containername -d imagename[detach mode]
+-->sudo docker run --name containername imagename[attach mode]
+-->sudo docker ps -a [it will display all the containes]
+-->sudo docker ps [it will only display the running containers]
+
+
+		---------------------Task-1{create a docker image & push into github}-----------------
+-->git clone "git repository url"
+-->cd sample-project
+-->sudo systemctl enable docker
+-->sudo systemctl start docker
+-->sudo usermod -a -G docker ec2-user
+-->sudo chmod 666 /var/run/docker.sock
+-->vi Dockerfile
+		"FROM ubuntu:latest
+		 install tomacat----"(:wq!)
+-->sudo dockjer build -t dockertimage .
+-->sudo docker images
+-->sudo docker run -p 8082:8082 -d imageid
+-->sudo docker ps -a
+-->sudo docker exec -it cont.id /bin/bash //enters to root successfully
+--> git add .
+-->git commit -m "docker file created"
+-->git push
+
+
+		-------------------------Push Dockerfile into dockerhub----------------------------------------
+-->mkdir saikrishna
+-->cd saikrishna
+-->vi Dockerfile
+		"FROM,RUN,&etc commands"
+-->sudo docker images ls
+-->sudo docker build .   //
+-->sudo docker images
+-->sudo docker run -p 8082:8082 -d imageID //
+-->sudo docker ps -a
+-->sudo docker exec -it containerID /bin/bash   //now we will enter into the container
+-->sudo docker commit containerID //
+-->sudo docker container ls
+-->sudo docker images
+-->sudo docker commit containerID username/dockerhubreponame:ImageID(ImageIDshould take from docker ps containeID image)
+-->sudo docker login //give docker hub username and password tro login to the docker hub
+-->sudo docker push username/reponame:dockerhubreponame:ImageID
+
+
+HELM  --> The package manager for kubernetes.
+
+-->Helm is the best way to find, share, and use
+software built for Kubernetes
+
+-->Helm Charts help you define, install, and 
+upgrade even the most complex Kubernetes application.
+
+-->Charts are easy to create, version, share, and publish — so start using Helm and stop the copy-and-paste.
+
+-->A Chart is a Helm package. It contains all of the 
+resource definitions necessary to run an application, 
+tool, or service inside of a Kubernetes cluster. Think 
+of it like the Kubernetes equivalent of a Homebrew 
+formula, an Apt dpkg, or a Yum RPM file.
+
+-->Helm uses a packaging format called charts. A chart is a collection of files that describe a related set of 
+Kubernetes resources. A single chart might be used to deploy something simple, like a memcached pod, or something
+complex, like a full web app stack with HTTP servers, databases, caches, and so on.
+
+-->Whenever you install a chart, a new release is created. So one chart can be installed multiple times into the 
+same cluster. And each can be independently managed and upgraded.
+
+
+
+
+
+
+-----------------------------helm installation---------------------------------
+--->link : https://helm.sh/docs/intro/install/
+
+$ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+$ chmod 700 get_helm.sh
+$ ./get_helm.sh
+
+
+
+
+After installation
+
+Once you have Helm ready, you can add a chart repository. Check Artifact Hub for available Helm chart repositories.
+	$ helm repo add bitnami https://charts.bitnami.com/bitnami
+	$ helm search repo bitnami
+-->To install a chart, you can run the helm install command. Helm has several ways to find and install a chart, but 
+the easiest is to use the bitnami charts.
+	$ helm repo update              # Make sure we get the latest list of charts
+	$ helm install bitnami/mysql --generate-name  [helm install my-nginx nginx-chart -f /path/to/values.yaml]
+-->It's easy to see what has been released using Helm: $helm list(or helm ls)
+
+-->To uninstall a release, use the helm uninstall command: $helm uninstall mysql-1612624192
+
+-->Because Helm tracks your releases even after you've uninstalled them, you can audit a cluster's 
+history, and even undelete a release (with helm rollback).:$ helm status mysql-1612624192
+
+hedlm roolback command: $ helm rollback your_release_name release_version
+
+
+--------------------helm deployment.yaml--------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestap: null
+  labels:
+    app: saikrishna
+  name: saikrishna
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: saikrishna
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: saikrishna
+    spec:
+      containers: 
+      - image: tomcat:latest
+        name: helm-chart
+        resource: 
+          requests:
+            cpu: 100m
+          limits:
+            cpu: 100m
+status: {}
+
+-------------------------helm service.yaml-------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: saikrishna
+spec:
+  type: NodePort
+  selector: 
+    app: saikrishna
+  ports:
+    - nodePort: 31000
+      protocol: TCP
+      port: 89
+      targetPort: 5555
+
+
+
+[PagerDuty is an incident management platform]
+
+
+
+--------------------Jenkins Pipeline Script--------------------------
+
+pipeline{
+    agent {
+        node {
+            label 'slave-machine'
+        }
+    }
+    tools{
+        maven 'Maven'
+    }
+    environment {
+        PATH="/root/tomcat/webapps:$PATH"
+    }
+    stages{
+        stage('Git')
+        {
+            steps{
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/ravdy/hello-world.git']]])
+            }
+        }
+        stage('Build')
+        {
+            steps{
+                sh 'mvn clean install package'
+            }
+        }
+        stage('deploy')
+        {
+            steps
+            {
+                 
+                   sh '''
+                   cd $WORKSPACE
+                   pwd
+                   ls -ltr
+                   cp /home/ec2-user/workspace/apache-tomcat/webapp/target/*.war ec2-user@43.207.67.16:/root/tomcat/webapps
+                   '''
+                    
+                    
+                    
+                
+            }
+        }
+       
+    }
+}
+
+
+###
+pipeline{
+    agent {
+        node {
+            label 'slave-machine'
+        }
+    }
+    tools{
+        maven 'Maven'
+    }
+    environment {
+        PATH="/home/ec2-user/tomcat9/bin:$PATH"
+    }
+    stages{
+        stage('Git')
+        {
+            steps{
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/ravdy/hello-world.git']]])
+            }
+        }
+        stage('Build')
+        {
+            steps{
+                sh 'mvn clean install package'
+            }
+        }
+        stage('deploy')
+        {
+            steps
+            {
+                sshagent(['slave1']) 
+                {
+                    sh "scp /var/lib/jenkins/workspace/apache-tomcat/webapp/target ec2-user@43.207.67.16:/home/ec2-user/tomcat9/webapps"
+                }
+                    
+                    
+                    
+                
+            }
+        }
+       
+    }
+}
+
+
+---------------------------------Pushing docker image into docker hub using pipeline sript------------------------------
+
+pipeline{
+agent any
+environment{
+dockerImage=''
+registry='username/reponame'
+registryCredientials='dockerhub' //configure credintals in jenkins for dockerhub
+}
+stages{
+stage('Source code')
+{
+steps
+{
+checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/mounika1612/docker-pipeline-jenkins.git']]])
+}
+}
+stage('Build')
+{
+steps{
+sh 'mvn clean install package'
+}
+}
+stage('Docker image'){
+steps{
+script{
+dockerImage=docker.build registry
+}
+}
+}
+stage('uploading to dockerhub')
+{
+steps{
+script{
+docker.withRegistry('', registryCredientials ){
+dockerImage.push()
+}
+}
+}
+}
+
+
+}
+}
+
+---------------promethus-----------------------
+
+https://prometheus.io/download/
+
+-->$tar xvfz prometheus-*.tar.gz
+-->$cd prometheus-*
+-->
+
+kubectl get all
+kubectl get all -n promethus
+
+-------------------------prometheus & Graphana -------------------
+kubectl create namespace prometheus
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+helm repo update prometheus-community
+
+helm upgrade -i prometheus prometheus-community/prometheus --namespace=prometheus
+
+---------------------Grafana-----------------------
+
+kubectl create namespace grafana
+
+helm repo add grafana https://grafana.github.io/helm-charts
+
+helm repo update grafana
+
+helm install grafana1 grafana/grafana \
+
+   --namespace grafana \
+
+   --set persistence.storageClassName="gp2" \
+
+   --set persistence.enabled=true \
+
+   --set adminPassword='admin123' \
+
+   --values grafana.yaml \
+
+   --set service.type=NodePort 
+
+
+-------------------------------------------
+COUNTER -->how many it has been happend 
+GAUGE  --> UP/DOWN what is the current value of X
+HOSTOGRAM-->How long it has been took how big it is known as Histogram
+
+--> to check the metrics hostaddress/metrics 
+
+---------------------
+Sample Yaml File
+
+version: '3.0'
+services:
+web:
+    build: /home/ec2-user/Sample
+    image: dimage
+    container_name: dcontainer
+    ports:
+      - "8088:8888"
+web1:
+    build: /home/ec2-user/Sample_Project
+    image: dockerimage
+    container_name: dockercontainer
+    ports:
+      - "8023:8080"
+
+----------------
+INstallation of Splunk
+
+-> wget -O splunk-9.0.4-de405f4a7979-Linux-x86_64.tgz "https://download.splunk.com/products/splunk/releases/9.0.4/linux/splunk-9.0.4-de405f4a7979-Linux-x86_64.tgz"
+--> ls->copy splunk version
+--> tar xvzf splunk version
+--> cd splunk
+--> cd bin
+--> ./splunk start
+--> username :
+--> password:
+--> in web paste instance ip adresss:8000
